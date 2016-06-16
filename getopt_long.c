@@ -4,12 +4,6 @@
 #include <unistd.h>
 #include <getopt.h>
 
-int main()
-{
-
-
-}
-
 
 
 
