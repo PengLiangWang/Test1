@@ -32,9 +32,6 @@ webbench主要的工作原理就是以下几点：
 接下来我们详细截图webbench的源代码。查看webbench的源代码，发现代码文件只有两个，Socket.c和webbench.c。首先看一下Socket.c，它当中只有一个函数int Socket(const char *host, int clientPort)，大致内容如下：
 
 
-复制代码
-复制代码
-
 int Socket(const char *host, int clientPort)
 {
     //以host为服务器端ip，clientPort为服务器端口号建立socket连接
@@ -43,20 +40,11 @@ int Socket(const char *host, int clientPort)
     //正常连接，则返回socket描述符
 }
 
-复制代码
-复制代码
-
-
 
 这段代码比较直观，因此就不列举其中的细节了。此函数供另外一个文件webbench.c中的函数调用。
 
 
-
 接着我们来瞧一下webbench.c文件。这个文件中包含了以下几个函数，我们一一列举出来：
-
-
-复制代码
-复制代码
 
 static void alarm_handler(int signal); //为方便下文引用，我们称之为函数1。
 static void usage(void); //函数2
@@ -65,24 +53,14 @@ static int bench(void); //函数4
 void benchcore(const char *host, const int port, const char *req); //函数5
 int main(int argc, char *argv[]); //函数6
 
-复制代码
-复制代码
-
-
 
 下面我们分别做讲解。
 
 
-
 （1）全局变量列表
-
-
 
 源文件中出现在所有函数前面的全局变量，主要有以下几项，我们以注释的方式解释其在程序中的用途
 
-
-复制代码
-复制代码
 
 volatile int timerexpired=0;//判断压测时长是否已经到达设定的时间
 int speed=0; //记录进程成功得到服务器响应的数量
@@ -100,17 +78,10 @@ int mypipe[2]; //使用管道进行父进程和子进程的通信
 char host[MAXHOSTNAMELEN]; //服务器端ip
 char request[REQUEST_SIZE]; //所要发送的http请求
 
-复制代码
-复制代码
-
-
 
 （2）函数1： static void alarm_handler(int signal);
 
-
-
 首先，来看一下最简单的函数，即函数1，它的内容如下：
-
 
 
 static void alarm_handler(int signal)
@@ -119,20 +90,13 @@ static void alarm_handler(int signal)
 }
 
 
-
 webbench在运行时可以设定压测的持续时间，以秒为单位。例如我们希望测试30秒，也就意味着压测30秒后程序应该退出了。webbench中使用信号（signal）来控制程序结束。函数1是在到达结束时间时运行的信号处理函数。它仅仅是将一个记录是否超时的变量timerexpired标记为true。后面会看到，在程序的while循环中会不断检测此值，只有timerexpired=1，程序才会跳出while循环并返回。
 
 
 
 （3）函数2 ：static void usage(void);
 
-
-
 其内容如下：
-
-
-复制代码
-复制代码
 
 static void usage(void)
 {
@@ -155,22 +119,11 @@ static void usage(void)
            );
 };
 
-复制代码
-复制代码
-
-
-
 从名字来看就很明显，这是教你如何使用webbench的函数，在linux命令行调用webbench方法不对的时候运行，作为提示。有一些比较常用的，比如-c来指定并发进程的多少；-t指定压测的时间，以秒为单位；支持HTTP0.9，HTTP1.0，HTTP1.1三个版本；支持GET，HEAD，OPTIONS，TRACE四种请求方式。不要忘了调用时，命令行最后还应该附上要测的服务端URL。
-
-
 
 （4）函数3：void build_request(const char *url);
 
-
-
 这个函数主要操作全局变量char request[REQUEST_SIZE]，根据url填充其内容。一个典型的http GET请求如下：
-
-
 
 GET /test.jpg HTTP/1.1
 User-Agent: WebBench 1.5
@@ -179,20 +132,13 @@ Pragma: no-cache
 Connection: close
 
 
-
 build_request函数的目的就是要把类似于以上这一大坨信息全部存到全局变量request[REQUEST_SIZE]中，其中换行操作使用的是”\r\n”。而以上这一大坨信息的具体内容是要根据命令行输入的参数，以及url来确定的。该函数使用了大量的字符串操作函数，例如strcpy，strstr，strncasecmp，strlen，strchr，index，strncpy，strcat。对这些基础函数不太熟悉的同学可以借这个函数复习一下。build_request的具体内容在此不做过多阐述。
 
 
 
 （5）函数6：int main(int argc, char *argv[]);
 
-
-
 之所以把函数6放在了函数4和函数5之前，是因为函数4和5是整个工具的最核心代码，我们把他放在最后分析。先来看一下整个程序的起始点：主函数（即函数6）。
-
-
-复制代码
-复制代码
 
 int main(int argc, char *argv[])
 {
@@ -216,10 +162,6 @@ http://blog.csdn.net/lanyan822/article/details/7692013
     //所有的压测都在bench函数（即函数4）实现
 }
 
-复制代码
-复制代码
-
-
 
 这真是一件很浪费感情的事情，看了半天，一直到最后一句才开始执行真正的测试过程，前面的都是一些准备工作。好了，那我们现在开始进入到static int bench(void)中。
 
@@ -227,13 +169,8 @@ http://blog.csdn.net/lanyan822/article/details/7692013
 
 （6）函数4：static int bench(void);
 
-
-
 源码如下：
 
-
-复制代码
-复制代码
 
 static int bench(void){
     int i,j,k;    
@@ -285,24 +222,13 @@ static int bench(void){
     return i;
 }
 
-复制代码
-复制代码
-
-
-
 这段代码，一上来先进行了一次socket连接，确认能连通以后，才进行后续步骤。调用pipe函数初始化一个管道，用于子进行向父进程汇报测试数据。子进程根据clients数量fork出来。每个子进程都调用函数5进行测试，并将结果输出到管道，供父进程读取。父进程负责收集所有子进程的测试数据，并汇总输出。
 
 
 
 （7）函数5：void benchcore(const char *host,const int port,const char *req);
 
-
-
 源码如下：
-
-
-复制代码
-复制代码
 
 void benchcore(const char *host,const int port,const char *req){
     int rlen;
