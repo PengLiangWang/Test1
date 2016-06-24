@@ -1,3 +1,5 @@
+/* http://www.cnblogs.com/renyuan/archive/2013/05/21/3091506.html */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -59,6 +61,7 @@ static Node *createList(Node *pHead)
     return pHead;
 }
 
+/*打印列表*/
 static void printList(Node *pHead)
 {
      if(NULL == pHead)
@@ -81,6 +84,32 @@ static void printList(Node *pHead)
 
 }
 
+static void delete_linkList(Node *pHead)
+{
+    Node *p = pHead->next;
+    if(p == NULL)
+        return;
+    pHead->next = p->next;
+    free(p);
+    p=NULL;
+    return;
+}
+
+
+static void clear_linkList(Node *pHead)
+{
+    while(pHead->next)
+        delete_linkList(pHead);
+    return;
+}
+
+static void display_linkList(Node *pHead)
+{
+    clear_linkList(pHead);
+    free(pHead);    //先清空链表,再释放头结点
+    pHead=NULL;
+    return;
+}
 
 int main(int argc, char *argv[])
 {
@@ -97,6 +126,11 @@ int main(int argc, char *argv[])
 
     pList = createList(pList);
     printList(pList);
+   
+    printf("\n**********************\n");
+    display_linkList(pList);
+    printList(pList);
+   
 
     return 0;
 }
