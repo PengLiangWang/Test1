@@ -89,7 +89,7 @@ static void delete_linkList(Node *pHead)
     Node *p = pHead->next;
     if(p == NULL)
         return;
-    pHead->next = p->next;
+    pHead->next = p->next;  //相当于pHead->next 指向 pHead->next->next
     free(p);
     p=NULL;
     return;
