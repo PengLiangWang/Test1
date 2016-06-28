@@ -125,7 +125,8 @@ static int sizeList(Node *pHead)
     return 0;
 }
 
-static isEmptyList(Node *pHead)
+/*判断链表是否为空*/
+static  int isEmptyList(Node *pHead)
 {
     if(pHead == NULL)
     {
@@ -136,6 +137,190 @@ static isEmptyList(Node *pHead)
     return 0;
 }
 
+/*获取链表某个位置的值*/
+static elemType getelement(Node *pHead, int pos)
+{
+    int i=0;
+
+    if(pos < 1)
+    {
+        printf("pos值非法.\n");
+        return 0;
+    }
+    if(NULL == pHead)
+    {
+        printf("链表为空.\n");
+        return 0;
+    }
+    while(NULL != pHead)
+    {
+        ++i;
+        if(i == pos)
+        {
+            break;
+        }
+        pHead = pHead->next;
+    }
+    if(i < pos)
+    {
+        printf("pos值超过链表的最大长度.\n");
+        return 0;
+    }
+    return pHead->element;
+}
+
+/*从单链表中查找具有给定值x的第一个元素，若查找成功则返回该结点data域的存储地址，否则返回NULL*/
+elemType *getElemAddr(Node *pHead, elemType x)
+{
+
+    elemType icount=1; 
+    if(NULL == pHead)
+    {
+        printf("链表为空\n");
+        return NULL;
+    }
+    if(x < 0)
+    {
+        printf("x值不合法\n");
+    }
+
+    while(pHead->element != x && NULL != pHead->next)
+    {
+        ++ icount ;
+        pHead=pHead->next;
+    }
+    if(pHead->element != x && NULL != pHead)
+    {
+        printf("链表中不存在 %d\n", x);
+        return NULL;
+    }
+    if(pHead->element == x)
+    {
+        printf("getElement函数执行, 元素 %d 的地址为 0x%x, 在链表中的位置: %d\n", x, &(pHead->element), icount);
+    }
+
+    return &(pHead->element);
+}
+
+
+/*把单链表中第pos个结点的值修改为x的值，若修改成功返回１，否则返回０*/
+static int modifyElem(Node *pHead, int pos, elemType x)
+{
+    int i = 0;
+
+    if(NULL == pHead)
+    {
+        printf("链表为空\n");
+        return 0;
+    }
+    if(pos < 1)
+    {
+        printf("pos值非法\n");
+        return 0;
+    }
+
+    while(pHead != NULL)
+    {
+        ++ i;
+        if(i == pos)
+        {
+            break; 
+        }
+        pHead=pHead->next;
+    }
+    if(i<pos)
+    {
+        printf("pos值非法\n");
+        return 0;
+    }
+    pHead->element = x;   //指针的位置没有改变, 只修改了存储内容
+    return 1;
+}
+
+/*向单链表的表头插入一个元素*/
+static int insertHeadList(Node **pNode, elemType insertElem)
+{
+    Node *pInsert;
+    pInsert = (Node *)malloc(sizeof(Node));
+    memset(pInsert, 0x00, sizeof(Node));
+    pInsert->element=insertElem;
+    pInsert->next=*pNode;
+    *pNode = pInsert;        
+    printf("表头插入节点成功.\n");
+    
+    return 1;
+}
+
+/*向单链表的末尾添加一个元素*/
+static int insertLastList(Node **pNode, elemType insertElem)
+{
+    Node  *pInsert;
+    Node  *pHead;
+    Node  *pTemp;     //定义一个临时链表用来存放第一个节点地址
+
+    pHead = *pNode;
+    pTemp = pHead;
+    pInsert = (Node *)malloc(sizeof(Node));
+    memset(pInsert, 0x00, sizeof(Node));
+    pInsert->element=insertElem;
+
+    while(NULL != pHead->next)
+    {
+        pHead=pHead->next;
+    }
+    pHead->next=pInsert;
+    *pNode = pTemp;
+    printf("向链表尾部插入节点成功.\n");
+
+    return 1;
+}
+
+/*向单链表中第pos个结点位置插入元素为x的结点，若插入成功返回１，否则返回０*/
+static int insertPosList(Node **pNode, int pos,  elemType insertElem) 
+{
+    Node *pInsert;
+    Node *pHead;
+    Node *pTemp;
+    int  i=0;
+
+    pHead = *pNode;
+    pTemp = pHead;
+    pInsert = (Node *)malloc(sizeof(Node));
+    memset(pInsert, 0x00, sizeof(Node));
+    pInsert->element=insertElem;
+
+    if(NULL == pHead)
+    {
+        printf("链表为空\n");
+        return 0;
+    }
+    if(pos < 1)
+    {
+        printf("pos值非法\n");
+        return 0;
+    }
+
+    while(pHead != NULL)
+    {
+        ++ i;
+        if(i == pos)
+            break;
+        pHead=pHead->next;
+    }
+    if(i<pos)
+    {
+        printf("pos值无效.\n");
+        return 0;
+    }
+    pInsert->next = pHead->next;
+    pHead->next = pInsert;
+    *pNode = pTemp;
+
+    return 1;
+}
+
+
+
 int main(int argc, char *argv[])
 {
     
@@ -144,7 +329,7 @@ int main(int argc, char *argv[])
 
     elemType posElem;
 
-    printf("\n********初始化链表**********\n");
+    printf("********初始化链表**********\n");
     initList(&pList);
     printList(pList);
 
@@ -156,13 +341,38 @@ int main(int argc, char *argv[])
     isEmptyList(pList);
     sizeList(pList);
 
-    printf("\n*********清空链表*********\n");
-    display_linkList(pList);
-    pList=NULL;
+    printf("\n********获取链表某个位置的值**********\n");
+    posElem = getelement(pList, 3);
+    printf("在链表位置3的地方存放的数据是: %d\n", posElem);
+
+    
+    printf("\n********获取链表中某个值的地址**********\n");
+    getElemAddr(pList, 8);
+
+
+    printf("\n*********修改某个节点的值*********\n");
+    modifyElem(pList, 5, 99);
+    printList(pList);
+
+    printf("\n*********链表头插入节点*********\n");
+    insertHeadList(&pList, 22);
+    printList(pList);
+
+
+    printf("\n*********链表尾部插入节点*********\n");
+    insertLastList(&pList, 33); 
+    printList(pList);
+
+    printf("\n*********在pos的位置插入新节点*********\n");
+    insertPosList(&pList, 2, 44);
     printList(pList);
 
     
 
+    printf("\n*********清空链表*********\n");
+    display_linkList(pList);
+    pList=NULL;
+    printList(pList);
 
     return 0;
 }
