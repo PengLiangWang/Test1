@@ -281,7 +281,7 @@ static int insertPosList(Node **pNode, int pos,  elemType insertElem)
     Node *pInsert;
     Node *pHead;
     Node *pTemp;
-    int  i=0;
+    int  i=1;
 
     pHead = *pNode;
     pTemp = pHead;
@@ -298,6 +298,11 @@ static int insertPosList(Node **pNode, int pos,  elemType insertElem)
     {
         printf("pos值非法\n");
         return 0;
+    }
+    if(pos == 1)
+    {
+        insertHeadList(pNode, insertElem);   //如果pos等于1, 调用向表头insert一个新节点函数 
+        return 1;
     }
 
     while(pHead != NULL)
@@ -319,6 +324,168 @@ static int insertPosList(Node **pNode, int pos,  elemType insertElem)
     return 1;
 }
 
+/* 13.向有序单链表中插入元素x结点，使得插入后仍然有序 */
+static int insertOrderList(Node **pNode, elemType insertElem)
+{
+    Node *pInsert;
+    Node *pHead;
+    Node *pTemp;
+    int  i=1;
+
+    pHead = *pNode;
+    pTemp = pHead;
+    pInsert = (Node *)malloc(sizeof(Node));
+    memset(pInsert, 0x00, sizeof(Node));
+    pInsert->element=insertElem;
+    if(NULL == pHead)
+    {
+        printf("链表为空\n");
+        return 0;
+    }
+    while(NULL != pHead)
+    {
+        ++i;
+        if(pHead->element >= insertElem)
+            break;
+        pHead=pHead->next;
+    }
+    if(NULL == pHead)
+    {
+       insertLastList(pNode, insertElem);   //如果已经比较到链表最后, 直接调用插入新节点到链表最后    
+       return 1;
+    }
+
+    insertPosList(pNode, --i, insertElem);    //找到前一个节点的位置，然后添加新节点
+    
+    return 1;
+}
+/* 14.从单链表中删除表头结点，并把该结点的值返回，若删除失败则停止程序运行 */
+static int deleteHeadList(Node **pNode)
+{
+    Node       *pHead;
+    elemType   elem;  
+    pHead = *pNode;
+    if(NULL == pHead)
+    {
+        printf("链表为空\n");
+        return 0;
+    }
+    *pNode = pHead->next;
+    elem = pHead->element;
+    free(pHead);
+
+    printf("已删除头节点: %d\n", elem);
+}
+
+/* 15.从单链表中删除表尾结点并返回它的值，若删除失败则停止程序运行 */
+static int deleteLastList(Node **pNode)
+{
+    Node *pHead;
+    Node *pTemp;
+
+    pHead = *pNode;
+    pTemp = pHead;
+    
+    if(NULL == pHead)
+    {
+        printf("链表为空.\n");
+        return 0;
+    }
+    while(NULL != pHead->next->next)
+    {
+        pHead = pHead->next; 
+    }
+    //跳出循环是pHead指向尾节点的前一个节点
+    printf("删除链表最后一个节点值: %d\n", pHead->next->element);   
+    delete_linkList(pHead);    //调用删除下一个节点的函数
+    /*
+    Node *p=pHead->next;
+    pHead->next = p->next;
+    free(p);
+    */
+    *pNode = pTemp;
+    return 1;
+}
+
+/* 16.从单链表中删除第pos个结点并返回它的值，若删除失败则停止程序运行 */
+static int deletePosList(Node **pNode, int pos)
+{   
+    Node *pHead;
+    Node *pTemp;
+    int  i = 1;
+
+    pHead = *pNode;
+    pTemp = pHead;
+    if(NULL == pHead)
+    {
+        printf("链表为空.\n");
+        return 0;
+    }
+    if(pos == 1)
+    {
+        deleteHeadList(pNode);  //调用删除头节点
+        return 1;
+    }
+    while(NULL != pHead->next)   
+    {
+        ++i;
+        if(i == pos)
+            break;
+        pHead = pHead->next;
+    } //i=5的时候, pHead才指向第4个
+    if(i<pos)
+    {
+        printf("pos非法. i=%d, pos=%d\n", i, pos);
+        return 0;
+    }
+
+    delete_linkList(pHead);    //调用删除下一个节点的函数
+    *pNode = pTemp;
+
+    return 1;
+}
+
+
+/* 17.从单链表中删除值为x的第一个结点，若删除成功则返回1,否则返回0 */
+static int deleteEqualList(Node **pNode, elemType delelem)
+{
+    Node *pHead;
+    Node *pTemp;
+    int  i = 0;
+
+    pHead = *pNode;
+    pTemp = pHead;
+    if(NULL == pHead)
+    {
+        printf("链表为空.\n");
+        return 0;
+    }
+    while(NULL != pHead)
+    {
+        ++ i;
+        if(pHead->element == delelem)
+            break;
+         pHead = pHead->next;
+    }
+    if(i == 1)
+    {
+        deleteHeadList(pNode);   //删除第一个节点
+        return 1;
+    }
+    if(NULL == pHead)
+    {
+        printf("链表中未找到此节点值: %d\n", delelem);
+        return 1;
+    }
+
+    *pNode = pTemp;
+    //节点删除
+    deletePosList(pNode, i);
+    return 1;
+}
+
+/* 18.交换2个元素的位置 */
+/* 19.将线性表进行快速排序 */
 
 
 int main(int argc, char *argv[])
@@ -350,6 +517,11 @@ int main(int argc, char *argv[])
     getElemAddr(pList, 8);
 
 
+    printf("\n*********在插入新节点保持有序性*********\n");
+    insertOrderList(&pList, 4);
+    printList(pList);
+
+
     printf("\n*********修改某个节点的值*********\n");
     modifyElem(pList, 5, 99);
     printList(pList);
@@ -367,7 +539,21 @@ int main(int argc, char *argv[])
     insertPosList(&pList, 2, 44);
     printList(pList);
 
-    
+    printf("\n*********删除头节点*********\n");
+    deleteHeadList(&pList);
+    printList(pList);
+
+    printf("\n*********删除尾节点*********\n");
+    deleteLastList(&pList);
+    printList(pList);
+
+    printf("\n*********删除pos位置的节点*********\n");
+    deletePosList(&pList, 5);
+    printList(pList);
+
+    printf("\n*********删除值为x的第一个节点*********\n");
+    deleteEqualList(&pList, 3);
+    printList(pList);
 
     printf("\n*********清空链表*********\n");
     display_linkList(pList);
