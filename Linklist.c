@@ -111,6 +111,31 @@ static void display_linkList(Node *pHead)
     return;
 }
 
+/*打印链表的长度*/
+static int sizeList(Node *pHead)
+{
+    int size=0;
+
+    while(NULL != pHead)
+    {
+        size ++;
+        pHead = pHead->next;
+    }
+    printf("sizeList函数执行, 链表长度: %d\n", size);
+    return 0;
+}
+
+static isEmptyList(Node *pHead)
+{
+    if(pHead == NULL)
+    {
+        printf("链表为空\n");
+        return 1;
+    }
+    printf("链表非空\n");
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
     
@@ -119,18 +144,25 @@ int main(int argc, char *argv[])
 
     elemType posElem;
 
+    printf("\n********初始化链表**********\n");
     initList(&pList);
     printList(pList);
 
-    printf("\n**********************\n");
+    printf("\n********创建链表**********\n");
 
     pList = createList(pList);
     printList(pList);
    
-    printf("\n**********************\n");
+    isEmptyList(pList);
+    sizeList(pList);
+
+    printf("\n*********清空链表*********\n");
     display_linkList(pList);
+    pList=NULL;
     printList(pList);
-   
+
+    
+
 
     return 0;
 }
